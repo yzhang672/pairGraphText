@@ -1,12 +1,6 @@
----
-title: "Learning to use the R package: SpeCon"
-author: "Yilin Zhang"
-output: html_document
----
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
+# Learning to use the R package: SpeCon
+## Yilin Zhang
 
 ### Introduction
 
