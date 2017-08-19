@@ -16,3 +16,4 @@ Suggests: testthat,
           knitr,
           rmarkdown
 VignetteBuilder: knitr
+URL: https://github.com/yzhang672/SpeCon/
