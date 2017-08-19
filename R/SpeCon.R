@@ -50,9 +50,9 @@ SpeCon <- function(
 
   # Normalize singular vectors to have rowsum 1
   u <- svdSimMat$u[,1:ncluster]
-  u <- t(apply(u,1,function(x) return(x/sqrt(sum(x^2)))))
+  u <- t(apply(u,1,normalize))
   v <- svdSimMat$v[,1:ncluster]
-  v <- t(apply(v,1,function(x) return(x/sqrt(sum(x^2)))))
+  v <- t(apply(v,1,normalize))
 
   # K-means on the normalized singular vectors.
   km_x <- kmeans(u, centers = ncluster_x, nstart = niteration)
@@ -131,6 +131,23 @@ center_scale <- function(Mat, center = FALSE, scale = TRUE)
   }
   return(Mat)
 }
+
+#' normalize
+#'
+#' @param x a vector
+#' @return the normalized vector
+#' @keywords Normalize
+#'
+#' @export
+normalize <- function(x){
+  if(sum(x^2)==0){
+    return(x)
+  }
+  else{
+    return(x/sqrt(sum(x^2)))
+  }
+}
+
 
 #' threshold
 #' the function to threshold Matrix
