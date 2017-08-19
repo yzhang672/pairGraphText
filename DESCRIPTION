@@ -6,8 +6,8 @@ Description: This package contains functions for applying Spectral Contextualiza
 Depends: R (>= 3.3.3)
 Imports: stats,
          Matrix,
-         irlba,
-         ggplot2
+         ggplot2,
+         irlba
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
