@@ -1,0 +1,8 @@
+exportPattern("^[[:alpha:]]+")
+importFrom("irlba","irlba")
+importFrom("stats","kmeans","quantile", "model.matrix")
+importFrom("Matrix","Diagonal")
+importFrom("ggplot2", "aes","element_text","geom_point",
+           "ggplot", "ggtitle", "theme", "theme_bw",
+           "xlab", "ylab")
+
