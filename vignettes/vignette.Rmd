@@ -15,11 +15,11 @@ The SpeCon package provides R functions to apply Spectral Contextualization when
 ### Installation
 
 ```{r}
-#install.packages("stats")
-#install.packages("Matrix")
-#install.packages("irlba")
-#install.packages("ggplot2")
-library("stats"); library("Matrix"); library("irlba"); library(ggplot2)
+#install.packages("devtools")
+#library(devtools)
+#install_github("yzhang672/SpeCon")
+library(SpeCon)
+library("irlba"); library("ggplot2")
 ```
 
 ### Your First SpeCon Adventure
