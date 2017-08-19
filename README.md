@@ -9,9 +9,9 @@ The SpeCon package provides R functions to apply Spectral Contextualization when
 ### Installation
 
 ```{r}
-#install.packages("devtools")
-#library(devtools)
-#install_github("yzhang672/SpeCon")
+install.packages("devtools")
+library(devtools)
+install_github("yzhang672/SpeCon")
 library(SpeCon)
 library("irlba"); library("ggplot2")
 ```
