@@ -20,48 +20,65 @@
 #'
 #' @export
 SpeCon <- function(
-  AdjMat, BowMatX, BowMatY, signif_level, weight_h, ncluster_x, ncluster_y, niteration)
+  AdjMat, BowMatX, BowMatY, signif_level, 
+  weight_h, ncluster_x, ncluster_y, niteration,
+  Laplac = TRUE, ScaleOrNot = TRUE, MatMul = TRUE)
 {
   # Calculate the regularized Graph Laplacian from the Adjacency Matrix
-  GraphLap <- laplacian(AdjMat, type = "both", regularizer = TRUE)
+  if(Laplac){GraphLap <- laplacian(AdjMat, type = "both", regularizer = TRUE)}else{GraphLap = AdjMat}
   # Scale the Bag of Word Matrices.
   # The centering step is woven in the algorithm for computational efficiency.
   # Woven in two places (1. Calculate Call Response Matrix, 2. matmulSimMat)
-  Xs <- center_scale(BowMatX, center = FALSE, scale = TRUE)
-  Ys <- center_scale(BowMatY, center = FALSE, scale = TRUE)
-
+  if(ScaleOrNot){
+    Xs <- center_scale(BowMatX, center = FALSE, scale = TRUE)
+    Ys <- center_scale(BowMatY, center = FALSE, scale = TRUE)
+  }else{Xs = BowMatX; Ys = BowMatY}
+  
   # Calculate the Call Response Matrix (equivalent to using centered BowMat)
   CallRespMat_pre_center <- t(Xs) %*% (GraphLap %*% Ys)
   colMeanX <- as.matrix(colMeans(Xs)); colMeanY <- as.matrix(colMeans(Ys));
   CallRespMat <- CallRespMat_pre_center - sum(GraphLap@x)*colMeanX%*%t(colMeanY)
-
+  
   # Threshold the Call Respond Matrix
   thresh <- quantile(abs(CallRespMat@x), prob = 1-signif_level)
   CallRespMat_thresh <- threshold(CallRespMat,thresh)
-
-  # No need to calculate the Similarity Matrix
-  #SimMat <- GraphLap + weight_h*(Xs%*%CallRespMat_thresh%*%t(Ys) -
-  #matrix(t(colMeanX)%*%CallRespMat_thresh%*%colMeanY, nrow = nrow(AdjMat), ncol = ncol(AdjMat)))
-
+  
+  XWY <- Xs%*%CallRespMat_thresh%*%t(Ys) - matrix(t(colMeanX)%*%CallRespMat_thresh%*%colMeanY, nrow = nrow(AdjMat), ncol = ncol(AdjMat))
+  
+  if(is.infinite(weight_h)){
+    SimMat <- XWY
+  }else{
+    if(weight_h != 0){
+      weight_h = weight_h* irlba(GraphLap, nu = 2, nv = 2)$d[2]/irlba(XWY, nu = 2, nv = 2)$d[2]
+    }
+    SimMat <- GraphLap + weight_h * XWY
+  }
+  
   # SVD on SimMat
   # This step can be accelerated by sef-defining matmul
   ncluster <- min(ncluster_x, ncluster_y)
-  svdSimMat <- irlba(GraphLap, nu = ncluster, nv = ncluster, matmul = matmulSimMat(GraphLap,weight_h,Xs,Ys,CallRespMat_thresh))
-
+  
+  start_time_specon <- Sys.time()
+  
+  svdSimMat <- irlba(SimMat, nu = ncluster, nv = ncluster, matmul = matmulSimMat(GraphLap,weight_h,Xs,Ys,CallRespMat_thresh, SimMat))
+  
   # Normalize singular vectors to have rowsum 1
   u <- svdSimMat$u[,1:ncluster]
   u <- t(apply(u,1,normalize))
   v <- svdSimMat$v[,1:ncluster]
   v <- t(apply(v,1,normalize))
-
+  
   # K-means on the normalized singular vectors.
   km_x <- kmeans(u, centers = ncluster_x, nstart = niteration)
   km_y <- kmeans(v, centers = ncluster_y, nstart = niteration)
-
   # km_x and km_y are the clustering results for two types of nodes:
   # senders and receivers
   # (or in other words: nodes on the rows and nodes on the columns)
-  return(list(svdSimMat, km_x, km_y))
+  
+  end_time_specon <- Sys.time()
+  time_elapse_specon <- end_time_specon-start_time_specon
+  
+  return(list(svdSimMat, km_x, km_y, time_elapse_specon))
 }
 
 
@@ -88,7 +105,7 @@ laplacian <- function(AdjMat,type,regularizer)
   taur = 0; tauc = 0
   if(regularizer==TRUE)
   {taur = mean(rs); tauc = mean(cs)}
-
+  
   if(type=="row")
   {
     GraphLap = Diagonal(length(rs), 1/(rs+taur))%*%AdjMat
@@ -179,15 +196,12 @@ threshold <- function(Mat,thresh)
 #' @keywords SVD matmul irlba
 
 
-matmulSimMat <- function(GraphLap,weight_h,Xs,Ys,CallRespMat_thresh)
+matmulSimMat <- function(GraphLap,weight_h,Xs,Ys,CallRespMat_thresh, SimMat)
 {
-  v <- apply(GraphLap,2,mean)
+  v <- apply(SimMat,2,mean)
   function(GraphLap,x,transpose=FALSE)
   {
-
-    if(transpose)
-      return( as.matrix(t(crossprod(x,GraphLap)) - sum(x) * v))
-
+    
     if(is.infinite(weight_h)){
       as.matrix(  Xs %*% (CallRespMat_thresh %*% crossprod(Ys,x))
                   - matrix(t(as.matrix(colMeans(Xs)))%*%CallRespMat_thresh%*%
@@ -202,6 +216,3 @@ matmulSimMat <- function(GraphLap,weight_h,Xs,Ys,CallRespMat_thresh)
     }
   }
 }
-
-
-
