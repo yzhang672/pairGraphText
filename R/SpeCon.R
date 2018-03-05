@@ -22,7 +22,7 @@
 SpeCon <- function(
   AdjMat, BowMatX, BowMatY, signif_level, 
   weight_h, ncluster_x, ncluster_y, niteration,
-  Laplac = TRUE, ScaleOrNot = TRUE, MatMul = TRUE)
+  Laplac = TRUE, ScaleOrNot = TRUE)
 {
   # Calculate the regularized Graph Laplacian from the Adjacency Matrix
   if(Laplac){GraphLap <- laplacian(AdjMat, type = "both", regularizer = TRUE)}else{GraphLap = AdjMat}
