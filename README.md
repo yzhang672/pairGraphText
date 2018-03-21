@@ -1,24 +1,24 @@
 
-# Learning to use the R package: SpeCon
+# Learning to use the R package: pairGraphText
 ## Yilin Zhang
 
 ### Introduction
 
-The SpeCon package provides R functions to apply Spectral Contextualization when analyzing networks with node covariates.
+The pairGraphText package provides R functions to implement the spectral contextualization method, pairGraphText, when analyzing networks with node covariates.
 
 ### Installation
 
 ```{r}
 install.packages("devtools")
 library(devtools)
-install_github("yzhang672/SpeCon")
-library(SpeCon)
+install_github("yzhang672/pairGraphText")
+library(pairGraphText)
 library("irlba"); library("ggplot2")
 ```
 
-### Your First SpeCon Adventure
+### Your First pairGraphText Adventure
 
-#### Simulate a network with node attributes.
+#### Simulate a network with node covariates.
 ```{r}
 set.seed(12017)
 
@@ -59,19 +59,19 @@ BowMat = fastRG(X,paraFeat$S, paraFeat$X, avgDeg = 20)
 BowMatX = BowMatY = BowMat;
 ```
 
-#### Apply Spectral Contextualization
+#### Implement PairGraphText
 
 ```{r}
-source('~/Dropbox/my project/RPackage/SpeCon/R/SpeCon.R')
+source('~/Dropbox/my project/RPackage/pairGraphText/R/pairGraphText.R')
 # Set parameter values
 signif_level = 0.05; weight_h = 0;
 ncluster_x = 4; ncluster_y = 5; niteration = 1000;
 
-# Do Spectral Contextualization
+# Do pairGraphText
 ptm0 <- proc.time()
 
 ClusterResult <-
-  SpeCon(AdjMat, BowMatX, BowMatY, signif_level,
+  pairGraphText(AdjMat, BowMatX, BowMatY, signif_level,
          weight_h, ncluster_x, ncluster_y, niteration)
 
 ptm1 <- proc.time()
@@ -81,7 +81,7 @@ print(ptm1-ptm0)
 #### Visualize your clustering results.
 
 ```{r}
-source('~/Dropbox/my project/RPackage/SpeCon/R/SBM.R')
+source('~/Dropbox/my project/RPackage/pairGraphText/R/SBM.R')
 cluster_x <- ClusterResult[[2]]$cluster
 cluster_y <- ClusterResult[[3]]$cluster
 SbmMat <- createB(AdjMat, cluster_x, cluster_y)
