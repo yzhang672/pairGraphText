@@ -4,7 +4,7 @@
 
 ### Introduction
 
-The pairGraphText package provides R functions to implement the spectral contextualization method, pairGraphText, when analyzing networks with node covariates.
+The pairGraphText package provides R functions to implement the graph contextualization method, pairGraphText, when analyzing networks with node covariates.
 
 ### Installation
 
