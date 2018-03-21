@@ -1,4 +1,4 @@
-#' SpeCon
+#' pairGraphText
 #'
 #' @param AdjMat An Adjacency Matrix
 #' @param BowMatX A Bag of Word Matrix for the first type of nodes (senders)
@@ -16,10 +16,10 @@
 #' km_x Clustering results for the first type of nodes (senders)
 #' km_y Clustering results for the second type of nodes (receivers)
 #'
-#' @keywords Spectral Contextualization
+#' @keywords pairGraphText, spectral contextualization
 #'
 #' @export
-SpeCon <- function(
+pairGraphText <- function(
   AdjMat, BowMatX, BowMatY, signif_level, 
   weight_h, ncluster_x, ncluster_y, niteration,
   Laplac = TRUE, ScaleOrNot = TRUE)
